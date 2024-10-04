@@ -42,6 +42,22 @@ contract TokenSwap is Ownable {
         buyRate = _buyRate;
     }
 
+    // Transfer all tokens owned by the user to the contract as liquidity
+    function transferAllTokensToContract(address _token) public {
+        uint userBalance;
+        if (_token == address(newToken)) {
+            userBalance = newToken.balanceOf(msg.sender);
+            require(userBalance > 0, "No new tokens to transfer");
+            newToken.transferFrom(msg.sender, address(this), userBalance);
+        } else if (_token == address(oldToken)) {
+            userBalance = oldToken.balanceOf(msg.sender);
+            require(userBalance > 0, "No old tokens to transfer");
+            oldToken.transferFrom(msg.sender, address(this), userBalance);
+        } else {
+            revert("Invalid token address");
+        }
+    }
+
     // Buy tokens
     function buyTokens(address _token, uint _amount) public payable returns (bool) {
         uint totalAmount = _amount * buyRate;
